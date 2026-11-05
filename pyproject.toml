@@ -8,10 +8,13 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "fastapi>=0.157.0",
     "librosa>=1.0.0",
     "matplotlib>=3.11.2",
     "numpy>=2.5.4",
+    "python-multipart>=0.0.32",
     "soundfile>=0.14.0",
+    "uvicorn[standard]>=0.54.0",
 ]
 
 [project.scripts]
