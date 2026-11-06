@@ -1,0 +1,8 @@
+.venv
+.git
+data
+*.wav
+*.mp3
+*.flac
+__pycache__
+.pytest_cache
