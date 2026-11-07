@@ -18,7 +18,7 @@ __pycache__/
 *.m4a
 
 # Local datasets and generated outputs
-data/
+data/raw/
 outputs/
 models/
 checkpoints/
