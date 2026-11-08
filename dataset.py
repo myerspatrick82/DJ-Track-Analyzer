@@ -47,6 +47,16 @@ def load_labels(file_path: str) -> pd.DataFrame:
 
     return df
 
+def extract_segment(audio, sr, start, end):
+    # calc starting sample index
+    
+    # calc ending sample index
+
+    # check time stams are valid
+
+    # return sliced audio
+    
+    pass
 
 if __name__ == "__main__":
     labels = load_labels("testcsv.csv")
