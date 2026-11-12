@@ -42,22 +42,48 @@ def load_labels(file_path: str) -> pd.DataFrame:
     if df["track"].isna().any():
         raise ValueError("Every section must have a track ID.")
 
-    if not np.isinfinite(df[["start", "end"]]).to_numpy().all():
+    if not np.isfinite(df[["start", "end"]]).to_numpy().all():
         raise ValueError("Start and end must be finite values.")
 
     return df
 
 def extract_segment(audio, sr, start, end):
-    # calc starting sample index
-    
-    # calc ending sample index
+    """
+    Extract a segment of audio based on start and end times.
 
-    # check time stams are valid
+    Args:
+        audio (np.ndarray): The audio signal.
+        sr (int): The sample rate.
+        start (float): The start time of the segment.
+        end (float): The end time of the segment.
 
-    # return sliced audio
+    Returns:
+        np.ndarray: The extracted audio segment.
+    """
+    sample_idx = int(start * sr)
+    end_sample_idx = int(end * sr)
     
-    pass
+    if start < 0 or end < 0:
+        raise ValueError("Start and end times must be non-negative.")
+
+    if start >= end:
+        raise ValueError("Start time must be less than end time.")
+
+    segment = audio[sample_idx:end_sample_idx]
+    
+    return segment
 
 if __name__ == "__main__":
     labels = load_labels("testcsv.csv")
     print(labels)
+
+    import numpy as np
+
+    audio = np.arange(1000)
+    sr = 100
+
+    segment = extract_segment(audio, sr, 2, 5)
+
+    print(segment[0])    # Expected: 200
+    print(segment[-1])   # Expected: 499
+    print(len(segment))  # Expected: 300
