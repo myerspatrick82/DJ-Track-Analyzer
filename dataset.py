@@ -1,3 +1,4 @@
+import librosa
 import pandas as pd
 import numpy as np
 
@@ -72,6 +73,39 @@ def extract_segment(audio, sr, start, end):
     segment = audio[sample_idx:end_sample_idx]
     
     return segment
+
+def extract_features(segment, sr):
+    """
+    Extract features from an audio segment.
+
+    Args:
+        segment (np.ndarray): The audio segment.
+        sr (int): The sample rate.
+
+    Returns:
+        dict: A dictionary containing extracted features.
+    """
+
+    rms = librosa.feature.rms(y=segment)[0]
+    std_rms = np.std(rms)
+    mean_rms = np.mean(rms)
+
+    centroid = librosa.feature.spectral_centroid(y=segment, sr=sr)[0]
+    std_centroid = np.std(centroid)
+    mean_centroid = np.mean(centroid)
+
+    onset_strength = librosa.onset.onset_strength(y=segment, sr=sr)
+    std_onset_strength = np.std(onset_strength)
+    mean_onset_strength = np.mean(onset_strength)
+
+    return {
+        "std_rms": round(float(std_rms), 4),
+        "mean_rms": round(float(mean_rms), 4),
+        "std_centroid": round(float(std_centroid), 2),
+        "mean_centroid": round(float(mean_centroid), 2),
+        "std_onset_strength": round(float(std_onset_strength), 4),
+        "mean_onset_strength": round(float(mean_onset_strength), 4)
+    }
 
 if __name__ == "__main__":
     labels = load_labels("testcsv.csv")
