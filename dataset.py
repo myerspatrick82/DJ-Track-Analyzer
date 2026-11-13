@@ -70,6 +70,9 @@ def extract_segment(audio, sr, start, end):
     if start >= end:
         raise ValueError("Start time must be less than end time.")
 
+    if end > len(audio) / sr:
+        raise ValueError("Segment exceeds audio duration.")
+    
     segment = audio[sample_idx:end_sample_idx]
     
     return segment
@@ -86,6 +89,9 @@ def extract_features(segment, sr):
         dict: A dictionary containing extracted features.
     """
 
+    if len(segment) == 0:
+        raise ValueError("Audio segment cannot be empty.")
+
     rms = librosa.feature.rms(y=segment)[0]
     std_rms = np.std(rms)
     mean_rms = np.mean(rms)
@@ -99,13 +105,40 @@ def extract_features(segment, sr):
     mean_onset_strength = np.mean(onset_strength)
 
     return {
-        "std_rms": round(float(std_rms), 4),
-        "mean_rms": round(float(mean_rms), 4),
-        "std_centroid": round(float(std_centroid), 2),
-        "mean_centroid": round(float(mean_centroid), 2),
-        "std_onset_strength": round(float(std_onset_strength), 4),
-        "mean_onset_strength": round(float(mean_onset_strength), 4)
+        "std_rms": float(std_rms),
+        "mean_rms": float(mean_rms),
+        "std_centroid": float(std_centroid),
+        "mean_centroid": float(mean_centroid),
+        "std_onset_strength": float(std_onset_strength),
+        "mean_onset_strength": float(mean_onset_strength)
     }
+
+def build_dataset(labels_path: str, audio_dir: str) -> pd.DataFrame:
+    """
+    Build a machine learning dataset from labeled audio segments.
+    """
+    labels = load_labels(labels_path)
+    train_data = []
+    for track_id, track_labels in labels.groupby("track"):
+        audio_path = f"{audio_dir}/{track_id}.wav"
+        audio, sr = librosa.load(audio_path, sr=22050)
+        for _, row in track_labels.iterrows():
+            start_time = row["start"]
+            end_time = row["end"]
+            label = row["label"]
+
+            segment = extract_segment(audio, sr, start_time, end_time)
+            features = extract_features(segment, sr)
+
+            train_data.append({
+                "track": track_id,
+                "start": start_time,
+                "end": end_time,
+                "label": label,
+                **features
+            })
+    train_data = pd.DataFrame(train_data)
+    return train_data
 
 if __name__ == "__main__":
     labels = load_labels("testcsv.csv")
@@ -121,3 +154,7 @@ if __name__ == "__main__":
     print(segment[0])    # Expected: 200
     print(segment[-1])   # Expected: 499
     print(len(segment))  # Expected: 300
+
+    df = build_dataset("testcsv.csv", "data/raw")
+
+    print(df.head())
