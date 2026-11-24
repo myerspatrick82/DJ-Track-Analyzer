@@ -141,7 +141,7 @@ def build_dataset(labels_path: str, audio_dir: str) -> pd.DataFrame:
     return train_data
 
 if __name__ == "__main__":
-    labels = load_labels("testcsv.csv")
+    labels = load_labels("test.csv")
     print(labels)
 
     import numpy as np

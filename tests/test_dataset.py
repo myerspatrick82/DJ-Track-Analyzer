@@ -1,4 +1,5 @@
 from dataset import extract_segment
+from dataset import load_labels
 import numpy as np
 import pytest
 
@@ -36,3 +37,33 @@ def test_start_equals_end():
 
     with pytest.raises(ValueError):
         extract_segment(audio, 100, 2, 2)
+
+def test_invalid_timestamps(tmp_path):
+    csv_file = tmp_path / "invalid.csv"
+
+    csv_file.write_text(
+        "track,start,end,label\n"
+        "song1,5,2,drop\n"
+    )
+
+    with pytest.raises(ValueError):
+        load_labels(csv_file)
+
+def test_load_labels(tmp_path):
+    csv_file = tmp_path / "labels.csv"
+
+    csv_file.write_text(
+        "track,start,end,label\n"
+        "song1,20,35,build\n"
+        "song1,35,50,drop\n"
+        "song1,50,65,breakdown\n"
+    )
+
+    df = load_labels(csv_file)
+
+    assert len(df) == 3
+    assert df["track"].nunique() == 1
+    assert df["label"].tolist() == [
+        "build", "drop", "breakdown"
+    ]
+
